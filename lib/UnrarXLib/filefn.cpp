@@ -434,5 +434,5 @@ bool DelDir(const char *Name)
 
 bool DelDir(const char *Name,const wchar *NameW)
 {
-  return(rmdir(Name)==0);
+  return(_rmdir(Name)==0);
 }

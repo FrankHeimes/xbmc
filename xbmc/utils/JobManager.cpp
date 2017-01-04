@@ -156,8 +156,8 @@ void CJobQueue::QueueNextJob()
 void CJobQueue::CancelJobs()
 {
   CSingleLock lock(m_section);
-  for_each(m_processing.begin(), m_processing.end(), std::mem_fun_ref(&CJobPointer::CancelJob));
-  for_each(m_jobQueue.begin(), m_jobQueue.end(), std::mem_fun_ref(&CJobPointer::FreeJob));
+  for (auto& job : m_processing) { job.CancelJob(); }
+  for (auto& job : m_jobQueue) { job.FreeJob(); }
   m_jobQueue.clear();
   m_processing.clear();
 }
@@ -203,12 +203,12 @@ void CJobManager::CancelJobs()
   // clear any pending jobs
   for (unsigned int priority = CJob::PRIORITY_LOW_PAUSABLE; priority <= CJob::PRIORITY_DEDICATED; ++priority)
   {
-    for_each(m_jobQueue[priority].begin(), m_jobQueue[priority].end(), std::mem_fun_ref(&CWorkItem::FreeJob));
-    m_jobQueue[priority].clear();
+	for (auto& job : m_jobQueue[priority]) { job.FreeJob(); }
+	m_jobQueue[priority].clear();
   }
 
   // cancel any callbacks on jobs still processing
-  for_each(m_processing.begin(), m_processing.end(), std::mem_fun_ref(&CWorkItem::Cancel));
+  for (auto& job : m_processing) { job.Cancel(); }
 
   // tell our workers to finish
   while (m_workers.size())

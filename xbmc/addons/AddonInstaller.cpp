@@ -57,14 +57,6 @@ using namespace KODI::MESSAGING;
 
 using KODI::MESSAGING::HELPERS::DialogResponse;
 
-struct find_map : public std::binary_function<CAddonInstaller::JobMap::value_type, unsigned int, bool>
-{
-  bool operator() (CAddonInstaller::JobMap::value_type t, unsigned int id) const
-  {
-    return (t.second.jobID == id);
-  }
-};
-
 CAddonInstaller::CAddonInstaller() : m_idle(true)
 { }
 
@@ -80,7 +72,8 @@ CAddonInstaller &CAddonInstaller::GetInstance()
 void CAddonInstaller::OnJobComplete(unsigned int jobID, bool success, CJob* job)
 {
   CSingleLock lock(m_critSection);
-  JobMap::iterator i = find_if(m_downloadJobs.begin(), m_downloadJobs.end(), bind2nd(find_map(), jobID));
+  JobMap::iterator i = find_if(m_downloadJobs.begin(), m_downloadJobs.end(),
+	  [jobID](const auto& t) { return (t.second.jobID == jobID); });
   if (i != m_downloadJobs.end())
     m_downloadJobs.erase(i);
   if (m_downloadJobs.empty())
@@ -95,7 +88,8 @@ void CAddonInstaller::OnJobComplete(unsigned int jobID, bool success, CJob* job)
 void CAddonInstaller::OnJobProgress(unsigned int jobID, unsigned int progress, unsigned int total, const CJob *job)
 {
   CSingleLock lock(m_critSection);
-  JobMap::iterator i = find_if(m_downloadJobs.begin(), m_downloadJobs.end(), bind2nd(find_map(), jobID));
+  JobMap::iterator i = find_if(m_downloadJobs.begin(), m_downloadJobs.end(),
+	  [jobID](const auto& t) { return (t.second.jobID == jobID); });
   if (i != m_downloadJobs.end())
   {
     // update job progress

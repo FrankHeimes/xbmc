@@ -48,6 +48,7 @@
 #include "pictures/GUIViewStatePictures.h"
 #include "pictures/PictureThumbLoader.h"
 #include "PlayListPlayer.h"
+#include "random"
 #ifdef TARGET_POSIX
 #include "linux/XTimeUtils.h"
 #endif
@@ -1154,12 +1155,14 @@ void CGUIWindowSlideShow::OnLoadPic(int iPic, int iSlideNumber, const std::strin
 
 void CGUIWindowSlideShow::Shuffle()
 {
-  std::random_shuffle(m_slides.begin(), m_slides.end());
-  m_iCurrentSlide = 0;
-  m_iNextSlide = GetNextSlide();
-  m_bShuffled = true;
+	std::random_device rng;
+	std::mt19937 urng(rng());
+	std::shuffle(m_slides.begin(), m_slides.end(), urng);
+	m_iCurrentSlide = 0;
+	m_iNextSlide = GetNextSlide();
+	m_bShuffled = true;
 
-  AnnouncePropertyChanged("shuffled", true);
+	AnnouncePropertyChanged("shuffled", true);
 }
 
 int CGUIWindowSlideShow::NumSlides() const

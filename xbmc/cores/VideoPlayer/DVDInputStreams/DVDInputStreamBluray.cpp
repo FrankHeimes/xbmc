@@ -730,12 +730,8 @@ void CDVDInputStreamBluray::OverlayClear(SPlane& plane, int x, int y, int w, int
     SOverlays add;
     for(std::vector<CRectInt>::iterator itr = rem.begin(); itr != rem.end(); ++itr)
     {
-      SOverlay overlay(new CDVDOverlayImage(*(*it)
-                                            , itr->x1
-                                            , itr->y1
-                                            , itr->Width()
-                                            , itr->Height())
-                    , std::ptr_fun(CDVDOverlay::Release));
+      SOverlay overlay(new CDVDOverlayImage(*(*it), itr->x1, itr->y1, itr->Width(), itr->Height()),
+		  [](auto& item) { CDVDOverlay::Release(item); });
       add.push_back(overlay);
     }
 
@@ -801,7 +797,7 @@ void CDVDInputStreamBluray::OverlayCallback(const BD_OVERLAY * const ov)
   /* uncompress and draw bitmap */
   if (ov->img && ov->cmd == BD_OVERLAY_DRAW)
   {
-    SOverlay overlay(new CDVDOverlayImage(), std::ptr_fun(CDVDOverlay::Release));
+    SOverlay overlay(new CDVDOverlayImage(), [](auto& item) { CDVDOverlay::Release(item); });
 
     if (ov->palette)
     {

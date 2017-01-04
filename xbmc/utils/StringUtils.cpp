@@ -489,8 +489,8 @@ static int isspace_c(char c)
 
 std::string& StringUtils::TrimLeft(std::string &str)
 {
-  str.erase(str.begin(), std::find_if(str.begin(), str.end(), std::not1(std::ptr_fun(isspace_c))));
-  return str;
+	str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](char c) { return !isspace_c(c); }));
+	return str;
 }
 
 std::string& StringUtils::TrimLeft(std::string &str, const char* const chars)
@@ -502,7 +502,7 @@ std::string& StringUtils::TrimLeft(std::string &str, const char* const chars)
 
 std::string& StringUtils::TrimRight(std::string &str)
 {
-  str.erase(std::find_if(str.rbegin(), str.rend(), std::not1(std::ptr_fun(isspace_c))).base(), str.end());
+  str.erase(std::find_if(str.rbegin(), str.rend(), [](char c) { return !isspace_c(c); }).base(), str.end());
   return str;
 }
 
