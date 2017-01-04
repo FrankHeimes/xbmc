@@ -46,6 +46,23 @@
 #include <d3d9types.h>
 #endif
 #include <memory>
-// anything below here should be headers that very rarely (hopefully never)
+#pragma comment(lib, "advapi32")
+#pragma comment(lib, "DInput8")
+#pragma comment(lib, "DSound")
+#pragma comment(lib, "DelayImp")
+#pragma comment(lib, "Iphlpapi")
+#pragma comment(lib, "Gdi32")
+#pragma comment(lib, "Mpr")
+#pragma comment(lib, "PowrProf")
+#pragma comment(lib, "WS2_32")
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "dwmapi")
+#pragma comment(lib, "dxguid")
+#pragma comment(lib, "setupapi")
+#pragma comment(lib, "shell32")
+#pragma comment(lib, "winmm")
+#pragma comment(lib, "yajl")
+
+ // anything below here should be headers that very rarely (hopefully never)
 // change yet are included almost everywhere.
 /* empty */

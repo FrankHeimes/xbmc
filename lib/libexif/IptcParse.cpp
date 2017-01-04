@@ -28,6 +28,9 @@
 //--------------------------------------------------------------------------
 #ifndef _LINUX
 #include <windows.h>
+#include <algorithm>
+using std::min;
+using std::max;
 #else
 #include <string.h>
 #define min(a,b) (a)>(b)?(b):(a)
@@ -193,8 +196,8 @@ bool CIptcParse::Process (const unsigned char* const Data, const unsigned short 
     {
       if (type != IPTC_KEYWORDS || *tag == 0)
       {
-        strncpy(tag, pos, min(length, MAX_IPTC_STRING - 1));
-        tag[min(length, MAX_IPTC_STRING - 1)] = 0;
+        strncpy(tag, pos, min(static_cast<int>(length), MAX_IPTC_STRING - 1));
+        tag[min(static_cast<int>(length), MAX_IPTC_STRING - 1)] = 0;
       }
       else if (type == IPTC_KEYWORDS)
       {
@@ -203,7 +206,7 @@ bool CIptcParse::Process (const unsigned char* const Data, const unsigned short 
         if (maxLen > 2)
         {
           strcat(tag, ", ");
-          strncat(tag, pos, min(length, maxLen - 3));
+          strncat(tag, pos, min(static_cast<size_t>(length), maxLen - 3));
         }
       }
 /*      if (id == SLIDE_IPTC_CAPTION)

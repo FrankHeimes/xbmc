@@ -32,6 +32,7 @@
 
 #ifndef _LINUX
 #include <windows.h>
+#include <algorithm>
 #else
 #include <memory.h>
 #include <cstring>
@@ -199,7 +200,7 @@ bool CJpegParse::ExtractInfo (FILE *infile)
         if (m_SectionBuffer != NULL)
         {
        //   CExifParse::FixComment(comment);          // Ensure comment is printable
-          unsigned short length = min(itemlen - 2, MAX_COMMENT);
+          unsigned short length = std::min(itemlen - 2, MAX_COMMENT);
           strncpy(m_ExifInfo.FileComment, (char *)&m_SectionBuffer[2], length);
           m_ExifInfo.FileComment[length] = '\0';
 		    }

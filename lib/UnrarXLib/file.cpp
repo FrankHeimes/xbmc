@@ -685,8 +685,9 @@ bool File::IsDevice()
   return false;
 //#ifdef _WIN_32
 #elif defined(_WIN_32)
-  uint Type=GetFileType(hFile);
-  return(Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE);
+  //uint Type=GetFileType(hFile);
+  //return(Type==FILE_TYPE_CHAR || Type==FILE_TYPE_PIPE);
+	return false;
 #else
   return(isatty(fileno(hFile)));
 #endif

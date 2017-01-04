@@ -31,6 +31,9 @@
 //       but that is ommited for now - to make porting easier and addition smaller
 #ifndef _LINUX
 #include <windows.h>
+#include <algorithm>
+using std::min;
+using std::max;
 #else
 #include <memory.h>
 #include <cstring>
