@@ -31,7 +31,6 @@
 #include "ServiceBroker.h"
 #include "messaging/ApplicationMessenger.h"
 #include "DVDClock.h"
-#include "threads/Atomics.h"
 #include "utils/BitstreamConverter.h"
 #include "utils/CPUInfo.h"
 #include "utils/log.h"
@@ -196,7 +195,7 @@ CDVDMediaCodecInfo::~CDVDMediaCodecInfo()
 
 CDVDMediaCodecInfo* CDVDMediaCodecInfo::Retain()
 {
-  AtomicIncrement(&m_refs);
+  ++m_refs;
   m_isReleased = false;
 
   return this;
@@ -204,7 +203,7 @@ CDVDMediaCodecInfo* CDVDMediaCodecInfo::Retain()
 
 long CDVDMediaCodecInfo::Release()
 {
-  long count = AtomicDecrement(&m_refs);
+  long count = --m_refs;
   if (count == 1)
     ReleaseOutputBuffer(false);
   if (count == 0)
@@ -369,6 +368,11 @@ bool CDVDVideoCodecAndroidMediaCodec::Open(CDVDStreamInfo &hints, CDVDCodecOptio
   else if (hints.stills || hints.dvd)
   {
     // Won't work reliably
+    return false;
+  }
+  else if (hints.orientation && m_render_surface && CJNIMediaFormat::GetSDKVersion() < 23)
+  {
+    CLog::Log(LOGERROR, "CDVDVideoCodecAndroidMediaCodec::Open - %s\n", "Surface does not support orientation before API 23");
     return false;
   }
   else if (!CServiceBroker::GetSettings().GetBool(CSettings::SETTING_VIDEOPLAYER_USEMEDIACODEC) &&
@@ -964,6 +968,13 @@ bool CDVDVideoCodecAndroidMediaCodec::ConfigureMediaCodec(void)
     m_mime.c_str(), m_hints.width, m_hints.height);
   // some android devices forget to default the demux input max size
   mediaformat.setInteger(CJNIMediaFormat::KEY_MAX_INPUT_SIZE, 0);
+
+  if (CJNIBase::GetSDKVersion() >= 23 && m_render_surface)
+  {
+    // Handle rotation
+    mediaformat.setInteger(CJNIMediaFormat::KEY_ROTATION, m_hints.orientation);
+  }
+
 
   // handle codec extradata
   if (m_hints.extrasize)

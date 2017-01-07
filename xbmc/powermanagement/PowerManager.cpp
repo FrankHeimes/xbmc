@@ -32,6 +32,7 @@
 #include "guilib/LocalizeStrings.h"
 #include "interfaces/AnnouncementManager.h"
 #include "interfaces/builtins/Builtins.h"
+#include "network/Network.h"
 #include "pvr/PVRManager.h"
 #include "settings/lib/Setting.h"
 #include "settings/Settings.h"
@@ -269,6 +270,8 @@ void CPowerManager::OnSleep()
 void CPowerManager::OnWake()
 {
   CLog::Log(LOGNOTICE, "%s: Running resume jobs", __FUNCTION__);
+
+  g_application.getNetwork().WaitForNet();
 
   // reset out timers
   g_application.ResetShutdownTimers();

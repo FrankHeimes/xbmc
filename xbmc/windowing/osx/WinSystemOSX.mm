@@ -1012,7 +1012,11 @@ bool CWinSystemOSX::SetFullScreen(bool fullScreen, RESOLUTION_INFO& res, bool bl
   ShowHideNSWindow([last_view window], needtoshowme);
   // need to make sure SDL tracks any window size changes
   ResizeWindowInternal(m_nWidth, m_nHeight, -1, -1, last_view);
-  [[last_view window] setFrameOrigin:last_window_origin];
+  // restore origin once again when going to windowed mode
+  if (!fullScreen)
+  {
+    [[last_view window] setFrameOrigin:last_window_origin];
+  }
   HandlePossibleRefreshrateChange();
 
   return true;
@@ -1734,7 +1738,7 @@ void CWinSystemOSX::AnnounceOnLostDevice()
   CSingleLock lock(m_resourceSection);
   // tell any shared resources
   CLog::Log(LOGDEBUG, "CWinSystemOSX::AnnounceOnLostDevice");
-  for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
+  for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); ++i)
     (*i)->OnLostDisplay();
 }
 
@@ -1743,7 +1747,7 @@ void CWinSystemOSX::AnnounceOnResetDevice()
   CSingleLock lock(m_resourceSection);
   // tell any shared resources
   CLog::Log(LOGDEBUG, "CWinSystemOSX::AnnounceOnResetDevice");
-  for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); i++)
+  for (std::vector<IDispResource *>::iterator i = m_resources.begin(); i != m_resources.end(); ++i)
     (*i)->OnResetDisplay();
 }
 

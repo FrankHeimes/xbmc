@@ -392,6 +392,12 @@ void CPVRManager::Reinit()
 
 void CPVRManager::Start()
 {
+  CSingleLock initLock(m_startStopMutex);
+
+  // Note: Stop() must not be called while holding pvr manager's mutex. Stop() calls
+  // StopThread() which can deadlock if the worker thread tries to acquire pvr manager's
+  // lock while StopThread() is waiting for the worker to exit. Thus, we introduce another
+  // lock here (m_startStopMutex), which only gets hold while starting/restarting pvr manager.
   Stop();
 
   CSingleLock lock(m_critSection);
@@ -413,8 +419,10 @@ void CPVRManager::Start()
 
 void CPVRManager::Stop(void)
 {
+  CSingleLock initLock(m_startStopMutex);
+
   /* check whether the pvrmanager is loaded */
-  if (IsStopping() || IsStopped())
+  if (IsStopped())
     return;
 
   SetState(ManagerStateStopping);
@@ -443,7 +451,7 @@ void CPVRManager::Stop(void)
 
   /* close database */
   const CPVRDatabasePtr database(GetTVDatabase());
-  if (database->IsOpen())
+  if (database && database->IsOpen())
     database->Close();
 
   SetState(ManagerStateStopped);
@@ -1302,8 +1310,11 @@ bool CPVRManager::OpenLiveStream(const CFileItem &fileItem)
     if(m_currentFile)
       delete m_currentFile;
     m_currentFile = new CFileItem(fileItem);
+  }
 
-    CPVRChannelPtr channel(m_addons->GetPlayingChannel());
+  if (bReturn)
+  {
+    const CPVRChannelPtr channel(m_addons->GetPlayingChannel());
     if (channel)
     {
       SetPlayingGroup(channel);
@@ -1332,8 +1343,6 @@ bool CPVRManager::OpenRecordedStream(const CPVRRecordingPtr &tag)
 
 void CPVRManager::CloseStream(void)
 {
-  CSingleLock lock(m_critSection);
-
   CPVRChannelPtr channel(m_addons->GetPlayingChannel());
   if (channel)
   {
@@ -1343,8 +1352,10 @@ void CPVRManager::CloseStream(void)
     g_application.SaveFileState();
   }
 
-  m_isChannelPreview = false;
   m_addons->CloseStream();
+
+  CSingleLock lock(m_critSection);
+  m_isChannelPreview = false;
   SAFE_DELETE(m_currentFile);
 }
 

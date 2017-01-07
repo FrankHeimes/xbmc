@@ -54,6 +54,7 @@ if(UNIX)
   if(CORE_SYSTEM_NAME STREQUAL linux OR CORE_SYSTEM_NAME STREQUAL freebsd)
     option(ENABLE_X11         "Enable X11 support?" ON)
     option(ENABLE_AML         "Enable AML?" OFF)
+    option(ENABLE_IMX         "Enable IMX?" OFF)
   endif()
 endif()
 # System options
@@ -114,7 +115,7 @@ endif()
 
 # Optional dependencies
 set(optional_deps MicroHttpd MySqlClient SSH XSLT
-                  Alsa UDEV DBus Avahi SmbClient CCache
+                  Alsa UDEV DBus Avahi MDNS SmbClient CCache
                   PulseAudio VDPAU VAAPI Bluetooth CAP)
 
 # Required, dyloaded deps
@@ -220,6 +221,7 @@ endif()
 
 if(CORE_SYSTEM_NAME STREQUAL android OR CORE_SYSTEM_NAME STREQUAL linux)
   core_optional_dep(AML)
+  core_optional_dep(IMX)
 elseif(CORE_SYSTEM_NAME STREQUAL rbpi)
   core_require_dep(MMAL)
 endif()
@@ -428,7 +430,7 @@ endif()
 # Use make binary-addons ADDONS="visualization.spectrum" to select the addons to build.
 if(CMAKE_GENERATOR STREQUAL "Unix Makefiles")
   if(CMAKE_CROSSCOMPILING)
-    set(_cross_args CROSS_COMPILING=yes TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
+    set(_cross_args CROSS_COMPILING=yes)
   endif()
   if(NOT CORE_SYSTEM_NAME STREQUAL android)
     set(_prefix ${CMAKE_BINARY_DIR}/addons)
